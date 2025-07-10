@@ -23,11 +23,11 @@ class ChooseModePage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 40),
             decoration: const BoxDecoration(
-                image: DecorationImage(
-                    fit: BoxFit.fill,
-                    image: AssetImage(
-                      AppImages.chooseModeBG,
-                    ))),
+              image: DecorationImage(
+                fit: BoxFit.cover,
+                image: AssetImage(AppImages.chooseModeBG),
+              ),
+            ),
           ),
           Container(
             color: Colors.black.withOpacity(0.15),
@@ -36,21 +36,28 @@ class ChooseModePage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 40),
             child: Column(
               children: [
-                Align(
+                const Align(
                   alignment: Alignment.topCenter,
-                  child: SvgPicture.asset(AppVectors.logo),
+                  child: Text(
+                    'Sonare',
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 2,
+                    ),
+                  ),
                 ),
                 const Spacer(),
                 const Text(
                   'Choose Mode',
                   style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 18),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
                 ),
-                const SizedBox(
-                  height: 40,
-                ),
+                const SizedBox(height: 40),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -69,9 +76,10 @@ class ChooseModePage extends StatelessWidget {
                                 height: 80,
                                 width: 80,
                                 decoration: BoxDecoration(
-                                    color: const Color(0xff30393C)
-                                        .withOpacity(0.5),
-                                    shape: BoxShape.circle),
+                                  color:
+                                      const Color(0xff30393C).withOpacity(0.5),
+                                  shape: BoxShape.circle,
+                                ),
                                 child: SvgPicture.asset(
                                   AppVectors.moon,
                                   fit: BoxFit.none,
@@ -80,21 +88,18 @@ class ChooseModePage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(
-                          height: 15,
-                        ),
+                        const SizedBox(height: 15),
                         const Text(
                           'Dark Mode',
                           style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 17,
-                              color: AppColors.grey),
-                        )
+                            fontWeight: FontWeight.w500,
+                            fontSize: 17,
+                            color: AppColors.grey,
+                          ),
+                        ),
                       ],
                     ),
-                    const SizedBox(
-                      width: 40,
-                    ),
+                    const SizedBox(width: 40),
                     Column(
                       children: [
                         GestureDetector(
@@ -110,9 +115,10 @@ class ChooseModePage extends StatelessWidget {
                                 height: 80,
                                 width: 80,
                                 decoration: BoxDecoration(
-                                    color: const Color(0xff30393C)
-                                        .withOpacity(0.5),
-                                    shape: BoxShape.circle),
+                                  color:
+                                      const Color(0xff30393C).withOpacity(0.5),
+                                  shape: BoxShape.circle,
+                                ),
                                 child: SvgPicture.asset(
                                   AppVectors.sun,
                                   fit: BoxFit.none,
@@ -121,32 +127,32 @@ class ChooseModePage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(
-                          height: 15,
-                        ),
+                        const SizedBox(height: 15),
                         const Text(
                           'Light Mode',
                           style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 17,
-                              color: AppColors.grey),
-                        )
+                            fontWeight: FontWeight.w500,
+                            fontSize: 17,
+                            color: AppColors.grey,
+                          ),
+                        ),
                       ],
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 50,
-                ),
+                const SizedBox(height: 50),
                 BasicAppButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  const SignupOrSigninPage()));
-                    },
-                    title: 'Continue')
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            const SignupOrSigninPage(),
+                      ),
+                    );
+                  },
+                  title: 'Continue',
+                ),
               ],
             ),
           ),

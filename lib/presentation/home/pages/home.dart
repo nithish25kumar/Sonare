@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:spotify2/common/helpers/is_dark_mode.dart';
+import 'package:spotify2/presentation/choose_mode/pages/choose_mode.dart';
 
 import '../../../common/widgets/appbar/app_bar.dart';
 import '../../../core/configs/assets/app_images.dart';
@@ -27,23 +29,51 @@ class _HomePageState extends State<HomePage>
     _tabController = TabController(length: 4, vsync: this);
   }
 
+  Future<void> _logout() async {
+    await FirebaseAuth.instance.signOut();
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const ChooseModePage()),
+        (route) => false,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //Appbar->basicAppbar
       appBar: BasicAppbar(
         hideBack: true,
-        action: IconButton(
-            onPressed: () {
-              Navigator.push(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Sonare',
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        action: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.person),
+              onPressed: () {
+                Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (BuildContext context) => const ProfilePage()));
-            },
-            icon: const Icon(Icons.person)),
-        title: SvgPicture.asset(
-          AppVectors.logo,
-          height: 40,
-          width: 40,
+                  MaterialPageRoute(builder: (_) => const ProfilePage()),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: _logout,
+            ),
+          ],
         ),
       ),
       body: SingleChildScrollView(
@@ -60,11 +90,11 @@ class _HomePageState extends State<HomePage>
                   const NewsSongs(),
                   Container(),
                   Container(),
-                  Container()
+                  Container(),
                 ],
               ),
             ),
-            const PlayList()
+            const PlayList(),
           ],
         ),
       ),
@@ -97,27 +127,19 @@ class _HomePageState extends State<HomePage>
   Widget _tabs() {
     return TabBar(
       controller: _tabController,
-      isScrollable: true,
+      isScrollable: false,
       labelColor: context.isDarkMode ? Colors.white : Colors.black,
       indicatorColor: AppColors.primary,
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
       tabs: const [
-        Text(
-          'News',
-          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-        ),
-        Text(
-          'Videos',
-          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-        ),
-        Text(
-          'Artists',
-          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-        ),
-        Text(
-          'Podcasts',
-          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-        )
+        Text('News',
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+        Text('Videos',
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+        Text('Artists',
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+        Text('Podcasts',
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
       ],
     );
   }

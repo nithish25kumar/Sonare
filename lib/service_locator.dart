@@ -44,7 +44,3 @@ Future<void> initializeDependencies() async {
 
   sl.registerSingleton<GetFavoriteSongsUseCase>(GetFavoriteSongsUseCase());
 }
-
-// Craft rules based on data in your Firestore database
-// allow write: if firestore.get(
-//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;

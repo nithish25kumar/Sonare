@@ -22,29 +22,27 @@ class SongPlayerPage extends StatelessWidget {
           style: TextStyle(fontSize: 18),
         ),
         action: IconButton(
-            onPressed: () {}, icon: const Icon(Icons.more_vert_rounded)),
+          onPressed: () {},
+          icon: const Icon(Icons.more_vert_rounded),
+        ),
       ),
       body: BlocProvider(
-        create: (_) => SongPlayerCubit()
-          ..loadSong(
-              '${AppURLs.songFirestorage}${songEntity.artist} - ${songEntity.title}.mp3?${AppURLs.mediaAlt}'),
+        create: (_) => SongPlayerCubit()..loadSong(songEntity.songUrl),
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-          child: Builder(builder: (context) {
-            return Column(
-              children: [
-                _songCover(context),
-                const SizedBox(
-                  height: 20,
-                ),
-                _songDetail(),
-                const SizedBox(
-                  height: 30,
-                ),
-                _songPlayer(context)
-              ],
-            );
-          }),
+          child: Builder(
+            builder: (context) {
+              return Column(
+                children: [
+                  _songCover(context),
+                  const SizedBox(height: 20),
+                  _songDetail(),
+                  const SizedBox(height: 30),
+                  _songPlayer(context),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -54,11 +52,22 @@ class SongPlayerPage extends StatelessWidget {
     return Container(
       height: MediaQuery.of(context).size.height / 2,
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          image: DecorationImage(
-              fit: BoxFit.cover,
-              image: NetworkImage(
-                  '${AppURLs.coverFirestorage}${songEntity.artist} - ${songEntity.title}.jpg?${AppURLs.mediaAlt}'))),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: Image.network(
+          songEntity.coverUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Image.network(AppURLs.defaultImage, fit: BoxFit.cover);
+          },
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return const Center(child: CircularProgressIndicator());
+          },
+        ),
+      ),
     );
   }
 
@@ -73,16 +82,14 @@ class SongPlayerPage extends StatelessWidget {
               songEntity.title,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
             ),
-            const SizedBox(
-              height: 5,
-            ),
+            const SizedBox(height: 5),
             Text(
               songEntity.artist,
               style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
             ),
           ],
         ),
-        FavoriteButton(songEntity: songEntity)
+        FavoriteButton(songEntity: songEntity),
       ],
     );
   }
@@ -93,57 +100,46 @@ class SongPlayerPage extends StatelessWidget {
         if (state is SongPlayerLoading) {
           return const CircularProgressIndicator();
         }
+
         if (state is SongPlayerLoaded) {
+          final cubit = context.read<SongPlayerCubit>();
           return Column(
             children: [
               Slider(
-                  value: context
-                      .read<SongPlayerCubit>()
-                      .songPosition
-                      .inSeconds
-                      .toDouble(),
-                  min: 0.0,
-                  max: context
-                      .read<SongPlayerCubit>()
-                      .songDuration
-                      .inSeconds
-                      .toDouble(),
-                  onChanged: (value) {}),
-              const SizedBox(
-                height: 20,
+                value: cubit.songPosition.inSeconds.toDouble(),
+                min: 0.0,
+                max: cubit.songDuration.inSeconds.toDouble(),
+                onChanged: (value) {},
               ),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(formatDuration(
-                      context.read<SongPlayerCubit>().songPosition)),
-                  Text(formatDuration(
-                      context.read<SongPlayerCubit>().songDuration))
+                  Text(formatDuration(cubit.songPosition)),
+                  Text(formatDuration(cubit.songDuration)),
                 ],
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               GestureDetector(
-                onTap: () {
-                  context.read<SongPlayerCubit>().playOrPauseSong();
-                },
+                onTap: () => cubit.playOrPauseSong(),
                 child: Container(
                   height: 60,
                   width: 60,
                   decoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: AppColors.primary),
+                    shape: BoxShape.circle,
+                    color: AppColors.primary,
+                  ),
                   child: Icon(
-                      context.read<SongPlayerCubit>().audioPlayer.playing
-                          ? Icons.pause
-                          : Icons.play_arrow),
+                    cubit.audioPlayer.playing ? Icons.pause : Icons.play_arrow,
+                    color: Colors.white,
+                  ),
                 ),
-              )
+              ),
             ],
           );
         }
 
-        return Container();
+        return const SizedBox();
       },
     );
   }

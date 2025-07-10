@@ -1,8 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:spotify2/presentation/home/pages/home.dart';
 
-import '../../../core/configs/assets/app_vectors.dart';
-import '../../intro/pages/get_started.dart';
+import '../../choose_mode/pages/choose_mode.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -15,21 +15,42 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    redirect();
+    _navigate();
+  }
+
+  void _navigate() async {
+    await Future.delayed(const Duration(seconds: 2));
+
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // User is logged in
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomePage()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const ChooseModePage()),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: SvgPicture.asset(AppVectors.logo)),
+    return const Scaffold(
+      backgroundColor: Colors.black,
+      body: Center(
+        child: Text(
+          'Sonare',
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
     );
-  }
-
-  Future<void> redirect() async {
-    await Future.delayed(const Duration(seconds: 2));
-    Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (BuildContext context) => const GetStartedPage()));
   }
 }

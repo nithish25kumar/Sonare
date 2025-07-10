@@ -17,97 +17,87 @@ class NewsSongs extends StatelessWidget {
     return BlocProvider(
       create: (_) => NewsSongsCubit()..getNewsSongs(),
       child: SizedBox(
-          height: 200,
-          child: BlocBuilder<NewsSongsCubit, NewsSongsState>(
-            builder: (context, state) {
-              if (state is NewsSongsLoading) {
-                return Container(
-                    alignment: Alignment.center,
-                    child: const CircularProgressIndicator());
-              }
+        height: 200,
+        child: BlocBuilder<NewsSongsCubit, NewsSongsState>(
+          builder: (context, state) {
+            if (state is NewsSongsLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-              if (state is NewsSongsLoaded) {
-                return _songs(state.songs);
-              }
+            if (state is NewsSongsLoaded) {
+              return _songs(context, state.songs);
+            }
 
-              return Container();
-            },
-          )),
+            return const SizedBox(); // fallback if load fails
+          },
+        ),
+      ),
     );
   }
 
-  Widget _songs(List<SongEntity> songs) {
+  Widget _songs(BuildContext context, List<SongEntity> songs) {
     return ListView.separated(
-        scrollDirection: Axis.horizontal,
-        shrinkWrap: true,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (BuildContext context) => SongPlayerPage(
-                            songEntity: songs[index],
-                          )));
-            },
-            child: SizedBox(
-              width: 160,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(
-                                  '${AppURLs.coverFirestorage}${songs[index].artist} - ${songs[index].title}.jpg?${AppURLs.mediaAlt}'))),
-                      child: Align(
-                        alignment: Alignment.bottomRight,
-                        child: Container(
-                          height: 40,
-                          width: 40,
-                          transform: Matrix4.translationValues(10, 10, 0),
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: context.isDarkMode
-                                  ? AppColors.darkGrey
-                                  : const Color(0xffE6E6E6)),
-                          child: Icon(
-                            Icons.play_arrow_rounded,
-                            color: context.isDarkMode
-                                ? const Color(0xff959595)
-                                : const Color(0xff555555),
-                          ),
-                        ),
-                      ),
+      scrollDirection: Axis.horizontal,
+      shrinkWrap: true,
+      itemCount: songs.length,
+      separatorBuilder: (context, index) => const SizedBox(width: 14),
+      itemBuilder: (context, index) {
+        final song = songs[index];
+
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => SongPlayerPage(songEntity: song),
+              ),
+            );
+          },
+          child: SizedBox(
+            width: 160,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Image.network(
+                      song.coverUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.network(
+                          AppURLs.defaultImage,
+                          fit: BoxFit.cover,
+                        );
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return const Center(child: CircularProgressIndicator());
+                      },
                     ),
                   ),
-                  const SizedBox(
-                    height: 10,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  song.title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
                   ),
-                  Text(
-                    songs[index].title,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 16),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  song.artist,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
                   ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    songs[index].artist,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w400, fontSize: 12),
-                  )
-                ],
-              ),
+                ),
+              ],
             ),
-          );
-        },
-        separatorBuilder: (context, index) => const SizedBox(
-              width: 14,
-            ),
-        itemCount: songs.length);
+          ),
+        );
+      },
+    );
   }
 }
