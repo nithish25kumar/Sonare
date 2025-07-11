@@ -2,7 +2,7 @@
     package="com.spotify250025.app">
 
     <application
-        android:label="spotify2"
+        android:label="Sonera"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

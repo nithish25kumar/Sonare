@@ -15,6 +15,9 @@ class SongPlayerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<SongPlayerCubit>();
+    cubit.loadSong(songEntity.songUrl);
+
     return Scaffold(
       appBar: BasicAppbar(
         title: const Text(
@@ -26,23 +29,16 @@ class SongPlayerPage extends StatelessWidget {
           icon: const Icon(Icons.more_vert_rounded),
         ),
       ),
-      body: BlocProvider(
-        create: (_) => SongPlayerCubit()..loadSong(songEntity.songUrl),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-          child: Builder(
-            builder: (context) {
-              return Column(
-                children: [
-                  _songCover(context),
-                  const SizedBox(height: 20),
-                  _songDetail(),
-                  const SizedBox(height: 30),
-                  _songPlayer(context),
-                ],
-              );
-            },
-          ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        child: Column(
+          children: [
+            _songCover(context),
+            const SizedBox(height: 20),
+            _songDetail(),
+            const SizedBox(height: 30),
+            _songPlayer(context),
+          ],
         ),
       ),
     );
@@ -75,19 +71,23 @@ class SongPlayerPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              songEntity.title,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              songEntity.artist,
-              style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
-            ),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                songEntity.title,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                songEntity.artist,
+                style:
+                    const TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
+              ),
+            ],
+          ),
         ),
         FavoriteButton(songEntity: songEntity),
       ],
@@ -97,26 +97,36 @@ class SongPlayerPage extends StatelessWidget {
   Widget _songPlayer(BuildContext context) {
     return BlocBuilder<SongPlayerCubit, SongPlayerState>(
       builder: (context, state) {
+        final cubit = context.read<SongPlayerCubit>();
+        final position = cubit.songPosition;
+        final duration = cubit.songDuration;
+
         if (state is SongPlayerLoading) {
           return const CircularProgressIndicator();
         }
 
         if (state is SongPlayerLoaded) {
-          final cubit = context.read<SongPlayerCubit>();
           return Column(
             children: [
               Slider(
-                value: cubit.songPosition.inSeconds.toDouble(),
+                value: position.inSeconds
+                    .toDouble()
+                    .clamp(0.0, duration.inSeconds.toDouble()),
                 min: 0.0,
-                max: cubit.songDuration.inSeconds.toDouble(),
-                onChanged: (value) {},
+                max: duration.inSeconds.toDouble(),
+                onChanged: (value) {
+                  cubit.updateSlider(Duration(seconds: value.toInt()));
+                },
+                onChangeEnd: (value) {
+                  cubit.seekTo(Duration(seconds: value.toInt()));
+                },
               ),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(formatDuration(cubit.songPosition)),
-                  Text(formatDuration(cubit.songDuration)),
+                  Text(formatDuration(position)),
+                  Text(formatDuration(duration)),
                 ],
               ),
               const SizedBox(height: 20),
@@ -132,6 +142,7 @@ class SongPlayerPage extends StatelessWidget {
                   child: Icon(
                     cubit.audioPlayer.playing ? Icons.pause : Icons.play_arrow,
                     color: Colors.white,
+                    size: 32,
                   ),
                 ),
               ),

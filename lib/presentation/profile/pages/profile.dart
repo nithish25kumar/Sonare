@@ -5,7 +5,6 @@ import 'package:spotify2/common/helpers/is_dark_mode.dart';
 
 import '../../../common/widgets/appbar/app_bar.dart';
 import '../../../common/widgets/favorite_button/favorite_button.dart';
-import '../../../core/configs/constants/app_urls.dart';
 import '../../song_player/pages/song_player.dart';
 import '../bloc/favorite_songs_cubit.dart';
 import '../bloc/favorite_songs_state.dart';
@@ -123,7 +122,7 @@ class ProfilePage extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(20),
                                     image: DecorationImage(
                                       image: NetworkImage(
-                                        '${AppURLs.coverFirestorage}${song.artist} - ${song.title}.jpg?${AppURLs.mediaAlt}',
+                                        song.coverUrl,
                                       ),
                                       fit: BoxFit.cover,
                                     ),

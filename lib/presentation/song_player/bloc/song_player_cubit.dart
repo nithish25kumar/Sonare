@@ -1,44 +1,63 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:spotify2/presentation/song_player/bloc/song_player_state.dart';
+
+import 'song_player_state.dart';
 
 class SongPlayerCubit extends Cubit<SongPlayerState> {
-  AudioPlayer audioPlayer = AudioPlayer();
+  final AudioPlayer audioPlayer = AudioPlayer();
 
-  Duration songDuration = Duration.zero;
   Duration songPosition = Duration.zero;
+  Duration songDuration = Duration.zero;
+  String? currentUrl;
+  bool isListening = false;
 
-  SongPlayerCubit() : super(SongPlayerLoading()) {
-    audioPlayer.positionStream.listen((position) {
-      songPosition = position;
-      updateSongPlayer();
-    });
-
-    audioPlayer.durationStream.listen((duration) {
-      songDuration = duration!;
-    });
-  }
-
-  void updateSongPlayer() {
-    emit(SongPlayerLoaded());
-  }
+  SongPlayerCubit() : super(SongPlayerInitial());
 
   Future<void> loadSong(String url) async {
-    print(url);
+    if (currentUrl == url && audioPlayer.playing) {
+      emit(SongPlayerLoaded());
+      return;
+    }
+
+    emit(SongPlayerLoading());
+
     try {
+      currentUrl = url;
       await audioPlayer.setUrl(url);
+      songDuration = audioPlayer.duration ?? Duration.zero;
+
+      if (!isListening) {
+        isListening = true;
+        audioPlayer.positionStream.listen((position) {
+          songPosition = position;
+          emit(SongPlayerLoaded());
+        });
+      }
+
+      audioPlayer.play();
       emit(SongPlayerLoaded());
     } catch (e) {
-      emit(SongPlayerLoaded());
+      emit(SongPlayerError(e.toString()));
     }
   }
 
   void playOrPauseSong() {
     if (audioPlayer.playing) {
-      audioPlayer.stop();
+      audioPlayer.pause();
     } else {
       audioPlayer.play();
     }
+    emit(SongPlayerLoaded());
+  }
+
+  void seekTo(Duration position) {
+    audioPlayer.seek(position);
+    songPosition = position;
+    emit(SongPlayerLoaded());
+  }
+
+  void updateSlider(Duration position) {
+    songPosition = position;
     emit(SongPlayerLoaded());
   }
 

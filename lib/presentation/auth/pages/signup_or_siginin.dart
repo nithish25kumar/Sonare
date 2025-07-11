@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:spotify2/common/helpers/is_dark_mode.dart';
-import 'package:spotify2/presentation/auth/pages/signin.dart';
-import 'package:spotify2/presentation/auth/pages/signup.dart';
 
 import '../../../auth_service..dart';
 import '../../../common/widgets/appbar/app_bar.dart';
-import '../../../common/widgets/button/basic_app_button.dart';
 import '../../../core/configs/assets/app_images.dart';
 import '../../../core/configs/assets/app_vectors.dart';
 import '../../../core/configs/theme/app_colors.dart';
@@ -55,7 +51,7 @@ class SignupOrSigninPage extends StatelessWidget {
                     'Feel the Beat, Live the Moment',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                      fontSize: 15,
                     ),
                   ),
                   const SizedBox(height: 21),
@@ -69,47 +65,6 @@ class SignupOrSigninPage extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 30),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: BasicAppButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => SignupPage(),
-                              ),
-                            );
-                          },
-                          title: 'Register',
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => SigninPage(),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            'Sign in',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: context.isDarkMode
-                                  ? Colors.white
-                                  : Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
                   GestureDetector(
                     onTap: () async {
                       final user = await AuthService().signInWithGoogle();
@@ -126,11 +81,11 @@ class SignupOrSigninPage extends StatelessWidget {
                       }
                     },
                     child: Container(
-                      height: 50, // Increased from 30 to 50
+                      height: 50,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(0),
                         border: Border.all(color: Colors.grey.shade300),
                       ),
                       child: Row(
