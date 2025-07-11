@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:spotify2/common/helpers/is_dark_mode.dart';
 
 import '../../../common/widgets/favorite_button/favorite_button.dart';
 import '../../../core/configs/constants/app_urls.dart';
@@ -81,7 +80,6 @@ class PlayList extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  // ✅ COVER IMAGE ADDED
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.network(

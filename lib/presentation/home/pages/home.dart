@@ -1,9 +1,8 @@
+import 'package:Sonera/common/helpers/is_dark_mode.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:spotify2/common/helpers/is_dark_mode.dart';
-import 'package:spotify2/presentation/choose_mode/pages/choose_mode.dart';
 
 import '../../../common/widgets/appbar/app_bar.dart';
 import '../../../core/configs/assets/app_images.dart';
@@ -11,6 +10,7 @@ import '../../../core/configs/assets/app_vectors.dart';
 import '../../../core/configs/constants/app_urls.dart';
 import '../../../core/configs/theme/app_colors.dart';
 import '../../../domain/entities/song/song.dart';
+import '../../choose_mode/pages/choose_mode.dart';
 import '../../profile/pages/profile.dart';
 import '../../song_player/pages/song_player.dart';
 import '../bloc/news_songs_cubit.dart';

@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:spotify2/presentation/home/pages/home.dart';
 
 import '../../choose_mode/pages/choose_mode.dart';
+import '../../home/pages/home.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -24,7 +24,6 @@ class _SplashPageState extends State<SplashPage> {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      // User is logged in
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomePage()),

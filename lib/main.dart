@@ -1,3 +1,5 @@
+import 'package:Sonera/presentation/choose_mode/bloc/theme_cubit.dart';
+import 'package:Sonera/presentation/splash/pages/splash.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -5,12 +7,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'package:spotify2/presentation/choose_mode/bloc/theme_cubit.dart';
-import 'package:spotify2/presentation/song_player/bloc/song_player_cubit.dart';
-import 'package:spotify2/presentation/splash/pages/splash.dart';
-
 import 'core/configs/theme/app_theme.dart';
 import 'firebase_options.dart';
+import 'presentation/song_player/bloc/song_player_cubit.dart';
 import 'service_locator.dart';
 
 Future<void> main() async {
