@@ -69,9 +69,10 @@ class SignupOrSigninPage extends StatelessWidget {
                     onTap: () async {
                       final user = await AuthService().signInWithGoogle();
                       if (user != null) {
-                        Navigator.pushReplacement(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => const HomePage()),
+                          (route) => false,
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(

@@ -228,7 +228,11 @@ class _HomePageState extends State<HomePage>
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (_) => SongPlayerPage(songEntity: song)),
+                builder: (_) => SongPlayerPage(
+                  allSongs: filteredSongs,
+                  currentIndex: index,
+                ),
+              ),
             );
           },
         );

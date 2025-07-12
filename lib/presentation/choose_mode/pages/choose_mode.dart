@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -16,148 +15,132 @@ class ChooseModePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.lightBackground,
-      body: Stack(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 40),
-            decoration: const BoxDecoration(
-              image: DecorationImage(
+    return BlocBuilder<ThemeCubit, ThemeMode>(
+      builder: (context, themeMode) {
+        final isDark = themeMode == ThemeMode.dark;
+        final bgImage = AssetImage(
+          isDark ? AppImages.chooseModeBG : AppImages.chooseModeBG,
+        );
+
+        return Scaffold(
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              Image(
+                image: bgImage,
                 fit: BoxFit.cover,
-                image: AssetImage(AppImages.chooseModeBG),
               ),
-            ),
-          ),
-          Container(
-            color: Colors.black.withOpacity(0.15),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 40),
-            child: Column(
-              children: [
-                const Align(
-                  alignment: Alignment.topCenter,
-                  child: Text(
-                    'Sonare',
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                const Text(
-                  'Choose Mode',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 18,
-                  ),
-                ),
-                const SizedBox(height: 40),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              Container(color: Colors.black.withOpacity(0.2)),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
+                child: Column(
                   children: [
-                    Column(
+                    const Text(
+                      'Sonare',
+                      style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                    const Spacer(),
+                    const Text(
+                      'Choose Mode',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        GestureDetector(
-                          onTap: () {
-                            context
-                                .read<ThemeCubit>()
-                                .updateTheme(ThemeMode.dark);
-                          },
-                          child: ClipOval(
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                              child: Container(
-                                height: 80,
-                                width: 80,
-                                decoration: BoxDecoration(
-                                  color:
-                                      const Color(0xff30393C).withOpacity(0.5),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: SvgPicture.asset(
-                                  AppVectors.moon,
-                                  fit: BoxFit.none,
-                                ),
-                              ),
-                            ),
-                          ),
+                        _themeOption(
+                          context,
+                          icon: AppVectors.moon,
+                          label: 'Dark Mode',
+                          isSelected: isDark,
+                          onTap: () => context
+                              .read<ThemeCubit>()
+                              .updateTheme(ThemeMode.dark),
                         ),
-                        const SizedBox(height: 15),
-                        const Text(
-                          'Dark Mode',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 17,
-                            color: AppColors.grey,
-                          ),
+                        const SizedBox(width: 40),
+                        _themeOption(
+                          context,
+                          icon: AppVectors.sun,
+                          label: 'Light Mode',
+                          isSelected: !isDark,
+                          onTap: () => context
+                              .read<ThemeCubit>()
+                              .updateTheme(ThemeMode.light),
                         ),
                       ],
                     ),
-                    const SizedBox(width: 40),
-                    Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            context
-                                .read<ThemeCubit>()
-                                .updateTheme(ThemeMode.light);
-                          },
-                          child: ClipOval(
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                              child: Container(
-                                height: 80,
-                                width: 80,
-                                decoration: BoxDecoration(
-                                  color:
-                                      const Color(0xff30393C).withOpacity(0.5),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: SvgPicture.asset(
-                                  AppVectors.sun,
-                                  fit: BoxFit.none,
-                                ),
-                              ),
-                            ),
+                    const SizedBox(height: 50),
+                    BasicAppButton(
+                      title: 'Continue',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SignupOrSigninPage(),
                           ),
-                        ),
-                        const SizedBox(height: 15),
-                        const Text(
-                          'Light Mode',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 17,
-                            color: AppColors.grey,
-                          ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
                   ],
                 ),
-                const SizedBox(height: 50),
-                BasicAppButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                            const SignupOrSigninPage(),
-                      ),
-                    );
-                  },
-                  title: 'Continue',
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _themeOption(
+    BuildContext context, {
+    required String icon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: ClipOval(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                height: 80,
+                width: 80,
+                decoration: BoxDecoration(
+                  color: const Color(0xff30393C).withOpacity(0.5),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isSelected ? AppColors.primary : Colors.transparent,
+                    width: 2,
+                  ),
                 ),
-              ],
+                child: SvgPicture.asset(icon, fit: BoxFit.none),
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w500,
+            color: AppColors.grey,
+          ),
+        ),
+      ],
     );
   }
 }

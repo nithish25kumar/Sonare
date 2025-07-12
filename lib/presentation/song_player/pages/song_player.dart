@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../common/widgets/appbar/app_bar.dart';
 import '../../../common/widgets/favorite_button/favorite_button.dart';
@@ -9,15 +11,71 @@ import '../../../domain/entities/song/song.dart';
 import '../bloc/song_player_cubit.dart';
 import '../bloc/song_player_state.dart';
 
-class SongPlayerPage extends StatelessWidget {
-  final SongEntity songEntity;
-  const SongPlayerPage({required this.songEntity, super.key});
+class SongPlayerPage extends StatefulWidget {
+  final List<SongEntity> allSongs;
+  final int currentIndex;
+
+  const SongPlayerPage({
+    super.key,
+    required this.allSongs,
+    required this.currentIndex,
+  });
+
+  @override
+  State<SongPlayerPage> createState() => _SongPlayerPageState();
+}
+
+class _SongPlayerPageState extends State<SongPlayerPage> {
+  late int currentIndex;
+  late SongEntity currentSong;
+  late SongPlayerCubit cubit;
+
+  @override
+  void initState() {
+    super.initState();
+    currentIndex = widget.currentIndex;
+    currentSong = widget.allSongs[currentIndex];
+    cubit = SongPlayerCubit();
+    cubit.loadSong(currentSong.songUrl);
+    _listenForSongEnd();
+  }
+
+  void _listenForSongEnd() {
+    cubit.audioPlayer.processingStateStream.listen((state) {
+      if (state == ProcessingState.completed) {
+        playNext();
+      }
+    });
+  }
+
+  void playNext() {
+    if (currentIndex < widget.allSongs.length - 1) {
+      setState(() {
+        currentIndex++;
+        currentSong = widget.allSongs[currentIndex];
+      });
+      cubit.loadSong(currentSong.songUrl);
+    }
+  }
+
+  void playPrevious() {
+    if (currentIndex > 0) {
+      setState(() {
+        currentIndex--;
+        currentSong = widget.allSongs[currentIndex];
+      });
+      cubit.loadSong(currentSong.songUrl);
+    }
+  }
+
+  @override
+  void dispose() {
+    cubit.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<SongPlayerCubit>();
-    cubit.loadSong(songEntity.songUrl);
-
     return Scaffold(
       appBar: BasicAppbar(
         title: const Text(
@@ -25,20 +83,28 @@ class SongPlayerPage extends StatelessWidget {
           style: TextStyle(fontSize: 18),
         ),
         action: IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.more_vert_rounded),
+          icon: const Icon(Icons.share),
+          onPressed: () {
+            final song = currentSong;
+            final shareText =
+                '🎶 Listen to "${song.title}" by ${song.artist}!\n${song.songUrl}';
+            Share.share(shareText);
+          },
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-        child: Column(
-          children: [
-            _songCover(context),
-            const SizedBox(height: 20),
-            _songDetail(),
-            const SizedBox(height: 30),
-            _songPlayer(context),
-          ],
+      body: BlocProvider.value(
+        value: cubit,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          child: Column(
+            children: [
+              _songCover(context),
+              const SizedBox(height: 20),
+              _songDetail(),
+              const SizedBox(height: 30),
+              _songPlayer(context),
+            ],
+          ),
         ),
       ),
     );
@@ -47,17 +113,14 @@ class SongPlayerPage extends StatelessWidget {
   Widget _songCover(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height / 2,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(30)),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(30),
         child: Image.network(
-          songEntity.coverUrl,
+          currentSong.coverUrl,
           fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Image.network(AppURLs.defaultImage, fit: BoxFit.cover);
-          },
+          errorBuilder: (_, __, ___) =>
+              Image.network(AppURLs.defaultImage, fit: BoxFit.cover),
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
             return const Center(child: CircularProgressIndicator());
@@ -76,20 +139,20 @@ class SongPlayerPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                songEntity.title,
+                currentSong.title,
                 style:
                     const TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
               ),
               const SizedBox(height: 5),
               Text(
-                songEntity.artist,
+                currentSong.artist,
                 style:
                     const TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
               ),
             ],
           ),
         ),
-        FavoriteButton(songEntity: songEntity),
+        FavoriteButton(songEntity: currentSong),
       ],
     );
   }
@@ -97,7 +160,6 @@ class SongPlayerPage extends StatelessWidget {
   Widget _songPlayer(BuildContext context) {
     return BlocBuilder<SongPlayerCubit, SongPlayerState>(
       builder: (context, state) {
-        final cubit = context.read<SongPlayerCubit>();
         final position = cubit.songPosition;
         final duration = cubit.songDuration;
 
@@ -125,26 +187,41 @@ class SongPlayerPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(formatDuration(position)),
-                  Text(formatDuration(duration)),
+                  Text(_formatDuration(position)),
+                  Text(_formatDuration(duration)),
                 ],
               ),
               const SizedBox(height: 20),
-              GestureDetector(
-                onTap: () => cubit.playOrPauseSong(),
-                child: Container(
-                  height: 60,
-                  width: 60,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.primary,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.skip_previous_rounded, size: 40),
+                    onPressed: playPrevious,
                   ),
-                  child: Icon(
-                    cubit.audioPlayer.playing ? Icons.pause : Icons.play_arrow,
-                    color: Colors.white,
-                    size: 32,
+                  GestureDetector(
+                    onTap: cubit.playOrPauseSong,
+                    child: Container(
+                      height: 60,
+                      width: 60,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.primary,
+                      ),
+                      child: Icon(
+                        cubit.audioPlayer.playing
+                            ? Icons.pause
+                            : Icons.play_arrow,
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                    ),
                   ),
-                ),
+                  IconButton(
+                    icon: const Icon(Icons.skip_next_rounded, size: 40),
+                    onPressed: playNext,
+                  ),
+                ],
               ),
             ],
           );
@@ -155,7 +232,7 @@ class SongPlayerPage extends StatelessWidget {
     );
   }
 
-  String formatDuration(Duration duration) {
+  String _formatDuration(Duration duration) {
     final minutes = duration.inMinutes.remainder(60);
     final seconds = duration.inSeconds.remainder(60);
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';

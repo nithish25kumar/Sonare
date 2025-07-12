@@ -104,8 +104,9 @@ class ProfilePage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (BuildContext context) => SongPlayerPage(
-                                songEntity: song,
+                              builder: (_) => SongPlayerPage(
+                                allSongs: state.favoriteSongs,
+                                currentIndex: index,
                               ),
                             ),
                           );
@@ -121,9 +122,7 @@ class ProfilePage extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(20),
                                     image: DecorationImage(
-                                      image: NetworkImage(
-                                        song.coverUrl,
-                                      ),
+                                      image: NetworkImage(song.coverUrl),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
