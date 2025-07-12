@@ -4,12 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../CategorySongs.dart';
 import '../../../common/widgets/appbar/app_bar.dart';
 import '../../../core/configs/assets/app_images.dart';
 import '../../../core/configs/assets/app_vectors.dart';
 import '../../../core/configs/constants/app_urls.dart';
 import '../../../core/configs/theme/app_colors.dart';
 import '../../../domain/entities/song/song.dart';
+import '../../../search_page.dart';
 import '../../choose_mode/pages/choose_mode.dart';
 import '../../profile/pages/profile.dart';
 import '../../song_player/pages/song_player.dart';
@@ -73,66 +75,48 @@ class _HomePageState extends State<HomePage>
     });
   }
 
-  Future<void> _logout() async {
-    await FirebaseAuth.instance.signOut();
-    if (mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const ChooseModePage()),
-        (route) => false,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: BasicAppbar(
         hideBack: true,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(width: 50),
-            const Text(
-              'Sonare',
-              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-            ),
-          ],
+        leading: IconButton(
+          icon: const Icon(Icons.person),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfilePage()),
+            );
+          },
         ),
-        action: Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.person),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ProfilePage()),
-                );
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: _logout,
-            ),
-          ],
+        title: const Text(
+          'Sonare',
+          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+        ),
+        action: IconButton(
+          icon: const Icon(Icons.search),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => SearchPage(allSongs: allSongs)),
+            );
+          },
         ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             _homeTopCard(),
-            _buildSearchBar(),
-            if (_searchController.text.isNotEmpty) _buildSearchResults(),
             _tabs(),
             SizedBox(
               height: 260,
               child: TabBarView(
                 controller: _tabController,
-                children: [
-                  const NewsSongs(),
-                  Container(),
-                  Container(),
-                  Container(),
+                children: const [
+                  CategorySongs(category: 'Trending Now'),
+                  CategorySongs(category: 'Top Charts'),
+                  CategorySongs(category: 'New Releases'),
+                  CategorySongs(category: 'Editor\'s Picks'),
                 ],
               ),
             ),
@@ -176,67 +160,21 @@ class _HomePageState extends State<HomePage>
       tabs: const [
         Text(
           'Trending Now',
-          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
-        )
-      ],
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: SizedBox(
-        child: TextField(
-          controller: _searchController,
-          decoration: InputDecoration(
-            hintText: 'Search songs...',
-            prefixIcon: const Icon(Icons.search),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-          onChanged: _filterSongs,
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSearchResults() {
-    return ListView.builder(
-      itemCount: filteredSongs.length,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (context, index) {
-        final song = filteredSongs[index];
-        return ListTile(
-          leading: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              song.coverUrl,
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Image.network(
-                AppURLs.defaultImage,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          title: Text(song.title),
-          subtitle: Text(song.artist),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => SongPlayerPage(
-                  allSongs: filteredSongs,
-                  currentIndex: index,
-                ),
-              ),
-            );
-          },
-        );
-      },
+        Text(
+          'Top Charts',
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+        ),
+        Text(
+          'New Releases',
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+        ),
+        Text(
+          'Editor\'s Picks',
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+        ),
+      ],
     );
   }
 }

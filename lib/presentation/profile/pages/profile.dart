@@ -5,19 +5,40 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../common/widgets/appbar/app_bar.dart';
 import '../../../common/widgets/favorite_button/favorite_button.dart';
+import '../../choose_mode/pages/choose_mode.dart';
 import '../../song_player/pages/song_player.dart';
 import '../bloc/favorite_songs_cubit.dart';
 import '../bloc/favorite_songs_state.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  Future<void> _logout() async {
+    await FirebaseAuth.instance.signOut();
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const ChooseModePage()),
+        (route) => false,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const BasicAppbar(
+      appBar: BasicAppbar(
         backgroundColor: Colors.white,
-        title: Text('Profile'),
+        title: const Text('Profile'),
+        action: IconButton(
+          icon: const Icon(Icons.logout),
+          onPressed: _logout,
+        ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

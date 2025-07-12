@@ -9,8 +9,9 @@ class SongEntity {
   final String songId;
   final String coverUrl;
   final String songUrl;
+  final String category;
 
-  SongEntity({
+  const SongEntity({
     required this.title,
     required this.artist,
     required this.duration,
@@ -19,5 +20,6 @@ class SongEntity {
     required this.songId,
     required this.coverUrl,
     required this.songUrl,
+    required this.category,
   });
 }
