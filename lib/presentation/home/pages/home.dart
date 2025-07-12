@@ -1,24 +1,22 @@
-import 'package:Sonera/common/helpers/is_dark_mode.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:Sonera/common/helpers/is_dark_mode.dart';
+import 'package:Sonera/core/configs/assets/app_images.dart';
+import 'package:Sonera/core/configs/assets/app_vectors.dart';
+import 'package:Sonera/core/configs/constants/app_urls.dart';
+import 'package:Sonera/core/configs/theme/app_colors.dart';
+import 'package:Sonera/domain/entities/song/song.dart';
+import 'package:Sonera/presentation/profile/pages/profile.dart';
+import 'package:Sonera/presentation/choose_mode/pages/choose_mode.dart';
+import 'package:Sonera/presentation/home/widgets/play_list.dart';
+import 'package:Sonera/presentation/home/widgets/news_songs.dart';
+import 'package:Sonera/presentation/home/bloc/news_songs_cubit.dart';
+import 'package:Sonera/presentation/home/bloc/play_list_cubit.dart';
+import 'package:Sonera/common/widgets/appbar/app_bar.dart';
 
 import '../../../CategorySongs.dart';
-import '../../../common/widgets/appbar/app_bar.dart';
-import '../../../core/configs/assets/app_images.dart';
-import '../../../core/configs/assets/app_vectors.dart';
-import '../../../core/configs/constants/app_urls.dart';
-import '../../../core/configs/theme/app_colors.dart';
-import '../../../domain/entities/song/song.dart';
+import '../../../miniplayer.dart';
 import '../../../search_page.dart';
-import '../../choose_mode/pages/choose_mode.dart';
-import '../../profile/pages/profile.dart';
-import '../../song_player/pages/song_player.dart';
-import '../bloc/news_songs_cubit.dart';
-import '../bloc/play_list_cubit.dart';
-import '../widgets/news_songs.dart';
-import '../widgets/play_list.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -59,22 +57,6 @@ class _HomePageState extends State<HomePage>
     });
   }
 
-  void _filterSongs(String query) {
-    final matches = allSongs.where((song) =>
-        song.title.toLowerCase().contains(query.toLowerCase()) ||
-        song.artist.toLowerCase().contains(query.toLowerCase()));
-
-    final uniqueFiltered = <String, SongEntity>{};
-    for (var song in matches) {
-      final key = '${song.title}_${song.artist}'.toLowerCase();
-      uniqueFiltered[key] = song;
-    }
-
-    setState(() {
-      filteredSongs = uniqueFiltered.values.toList();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,26 +85,41 @@ class _HomePageState extends State<HomePage>
           },
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _homeTopCard(),
-            _tabs(),
-            SizedBox(
-              height: 260,
-              child: TabBarView(
-                controller: _tabController,
-                children: const [
-                  CategorySongs(category: 'Trending Now'),
-                  CategorySongs(category: 'Top Charts'),
-                  CategorySongs(category: 'New Releases'),
-                  CategorySongs(category: 'Editor\'s Picks'),
-                ],
-              ),
+      body: Stack(
+        children: [
+          // Main scrollable content
+          SingleChildScrollView(
+            padding: const EdgeInsets.only(
+                bottom: 100), // Leave space for MiniPlayer
+            child: Column(
+              children: [
+                _homeTopCard(),
+                _tabs(),
+                SizedBox(
+                  height: 260,
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: const [
+                      CategorySongs(category: 'Trending Now'),
+                      CategorySongs(category: 'Top Charts'),
+                      CategorySongs(category: 'New Releases'),
+                      CategorySongs(category: 'Editor\'s Picks'),
+                    ],
+                  ),
+                ),
+                const PlayList(),
+              ],
             ),
-            const PlayList(),
-          ],
-        ),
+          ),
+
+          // Fixed Mini Player
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: MiniPlayer(allSongs: allSongs),
+          ),
+        ],
       ),
     );
   }

@@ -1,3 +1,5 @@
+// ✅ Full SongPlayerPage with Global Cubit Support
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
@@ -8,6 +10,7 @@ import '../../../common/widgets/favorite_button/favorite_button.dart';
 import '../../../core/configs/constants/app_urls.dart';
 import '../../../core/configs/theme/app_colors.dart';
 import '../../../domain/entities/song/song.dart';
+import '../../../service_locator.dart';
 import '../bloc/song_player_cubit.dart';
 import '../bloc/song_player_state.dart';
 
@@ -28,15 +31,14 @@ class SongPlayerPage extends StatefulWidget {
 class _SongPlayerPageState extends State<SongPlayerPage> {
   late int currentIndex;
   late SongEntity currentSong;
-  late SongPlayerCubit cubit;
+  final cubit = sl<SongPlayerCubit>();
 
   @override
   void initState() {
     super.initState();
     currentIndex = widget.currentIndex;
     currentSong = widget.allSongs[currentIndex];
-    cubit = SongPlayerCubit();
-    cubit.loadSong(currentSong.songUrl);
+    cubit.loadSong(currentSong.songUrl, currentSong);
     _listenForSongEnd();
   }
 
@@ -54,7 +56,7 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
         currentIndex++;
         currentSong = widget.allSongs[currentIndex];
       });
-      cubit.loadSong(currentSong.songUrl);
+      cubit.loadSong(currentSong.songUrl, currentSong);
     }
   }
 
@@ -64,24 +66,15 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
         currentIndex--;
         currentSong = widget.allSongs[currentIndex];
       });
-      cubit.loadSong(currentSong.songUrl);
+      cubit.loadSong(currentSong.songUrl, currentSong);
     }
-  }
-
-  @override
-  void dispose() {
-    cubit.close();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: BasicAppbar(
-        title: const Text(
-          'Now playing',
-          style: TextStyle(fontSize: 18),
-        ),
+        title: const Text('Now playing', style: TextStyle(fontSize: 18)),
         action: IconButton(
           icon: const Icon(Icons.share),
           onPressed: () {
@@ -138,17 +131,13 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                currentSong.title,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-              ),
+              Text(currentSong.title,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 22)),
               const SizedBox(height: 5),
-              Text(
-                currentSong.artist,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
-              ),
+              Text(currentSong.artist,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w400, fontSize: 14)),
             ],
           ),
         ),

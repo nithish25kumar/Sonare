@@ -1,3 +1,4 @@
+import 'package:Sonera/presentation/song_player/bloc/song_player_cubit.dart';
 import 'package:get_it/get_it.dart';
 
 import 'data/repository/song/song_repository_impl.dart';
@@ -27,4 +28,5 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<IsFavoriteSongUseCase>(IsFavoriteSongUseCase());
 
   sl.registerSingleton<GetFavoriteSongsUseCase>(GetFavoriteSongsUseCase());
+  sl.registerLazySingleton<SongPlayerCubit>(() => SongPlayerCubit());
 }

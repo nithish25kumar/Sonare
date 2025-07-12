@@ -14,14 +14,11 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
   List<SongEntity> filteredSongs = [];
-
-  @override
-  void initState() {
-    super.initState();
-    filteredSongs = widget.allSongs;
-  }
+  bool hasTyped = false;
 
   void _filterSongs(String query) {
+    hasTyped = true;
+
     final matches = widget.allSongs.where((song) =>
         song.title.toLowerCase().contains(query.toLowerCase()) ||
         song.artist.toLowerCase().contains(query.toLowerCase()));
@@ -69,6 +66,65 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
+  Widget _buildInitialPlaceholder() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Icon(Icons.search, size: 80, color: Colors.grey),
+          SizedBox(height: 16),
+          Text(
+            'Search for your favorite songs',
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNoResults() {
+    return const Center(
+      child: Text(
+        'No results found.',
+        style: TextStyle(fontSize: 16, color: Colors.grey),
+      ),
+    );
+  }
+
+  Widget _buildSearchResults() {
+    return ListView.builder(
+      itemCount: filteredSongs.length,
+      itemBuilder: (context, index) {
+        final song = filteredSongs[index];
+        return ListTile(
+          leading: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              song.coverUrl,
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const Icon(Icons.music_note),
+            ),
+          ),
+          title: Text(song.title),
+          subtitle: Text(song.artist),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => SongPlayerPage(
+                  allSongs: filteredSongs,
+                  currentIndex: index,
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,38 +133,11 @@ class _SearchPageState extends State<SearchPage> {
         children: [
           _buildSearchBar(),
           Expanded(
-            child: ListView.builder(
-              itemCount: filteredSongs.length,
-              itemBuilder: (context, index) {
-                final song = filteredSongs[index];
-                return ListTile(
-                  leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      song.coverUrl,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
-                          const Icon(Icons.music_note),
-                    ),
-                  ),
-                  title: Text(song.title),
-                  subtitle: Text(song.artist),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SongPlayerPage(
-                          allSongs: filteredSongs,
-                          currentIndex: index,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+            child: !hasTyped
+                ? _buildInitialPlaceholder()
+                : (filteredSongs.isEmpty
+                    ? _buildNoResults()
+                    : _buildSearchResults()),
           ),
         ],
       ),

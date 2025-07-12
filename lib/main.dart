@@ -19,6 +19,7 @@ Future<void> main() async {
         ? HydratedStorage.webStorageDirectory
         : await getApplicationDocumentsDirectory(),
   );
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await initializeDependencies();

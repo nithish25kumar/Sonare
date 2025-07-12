@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
-
+import '../../../domain/entities/song/song.dart';
 import 'song_player_state.dart';
 
 class SongPlayerCubit extends Cubit<SongPlayerState> {
@@ -9,12 +9,14 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   Duration songPosition = Duration.zero;
   Duration songDuration = Duration.zero;
   String? currentUrl;
+  SongEntity? currentSong;
   bool isListening = false;
 
   SongPlayerCubit() : super(SongPlayerInitial());
 
-  Future<void> loadSong(String url) async {
+  Future<void> loadSong(String url, SongEntity song) async {
     if (currentUrl == url && audioPlayer.playing) {
+      currentSong = song;
       emit(SongPlayerLoaded());
       return;
     }
@@ -23,6 +25,8 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
 
     try {
       currentUrl = url;
+      currentSong = song;
+
       await audioPlayer.setUrl(url);
       songDuration = audioPlayer.duration ?? Duration.zero;
 
