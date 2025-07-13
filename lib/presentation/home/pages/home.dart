@@ -3,13 +3,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:Sonera/common/helpers/is_dark_mode.dart';
 import 'package:Sonera/core/configs/assets/app_images.dart';
 import 'package:Sonera/core/configs/assets/app_vectors.dart';
-import 'package:Sonera/core/configs/constants/app_urls.dart';
 import 'package:Sonera/core/configs/theme/app_colors.dart';
 import 'package:Sonera/domain/entities/song/song.dart';
 import 'package:Sonera/presentation/profile/pages/profile.dart';
-import 'package:Sonera/presentation/choose_mode/pages/choose_mode.dart';
 import 'package:Sonera/presentation/home/widgets/play_list.dart';
-import 'package:Sonera/presentation/home/widgets/news_songs.dart';
 import 'package:Sonera/presentation/home/bloc/news_songs_cubit.dart';
 import 'package:Sonera/presentation/home/bloc/play_list_cubit.dart';
 import 'package:Sonera/common/widgets/appbar/app_bar.dart';
@@ -18,6 +15,7 @@ import '../../../CategorySongs.dart';
 import '../../../miniplayer.dart';
 import '../../../search_page.dart';
 
+//home page stateful widget uses to perform functions
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -27,6 +25,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
+  //initialized tabcontroller,TextEditingController with variables
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
   List<SongEntity> allSongs = [];
@@ -34,6 +33,7 @@ class _HomePageState extends State<HomePage>
 
   @override
   void initState() {
+    //Initial tabcontroller by giving length 4
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     loadAllSongs();
@@ -89,8 +89,7 @@ class _HomePageState extends State<HomePage>
         children: [
           // Main scrollable content
           SingleChildScrollView(
-            padding: const EdgeInsets.only(
-                bottom: 100), // Leave space for MiniPlayer
+            padding: const EdgeInsets.only(bottom: 100),
             child: Column(
               children: [
                 _homeTopCard(),
