@@ -1,3 +1,4 @@
+import 'package:Sonera/creatorpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:Sonera/common/helpers/is_dark_mode.dart';
@@ -62,14 +63,31 @@ class _HomePageState extends State<HomePage>
     return Scaffold(
       appBar: BasicAppbar(
         hideBack: true,
-        leading: IconButton(
+        leading: PopupMenuButton<String>(
           icon: const Icon(Icons.person),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ProfilePage()),
-            );
+          onSelected: (value) {
+            if (value == 'profile') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfilePage()),
+              );
+            } else if (value == 'creator') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => Creatorpage()),
+              );
+            }
           },
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'profile',
+              child: Text('Profile Info'),
+            ),
+            const PopupMenuItem(
+              value: 'creator',
+              child: Text('Creator Info'),
+            ),
+          ],
         ),
         title: const Text(
           'Sonare',
